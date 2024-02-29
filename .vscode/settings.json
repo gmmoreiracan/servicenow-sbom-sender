@@ -1,5 +1,4 @@
 {
     "yaml.schemas": {
-        "https://json.schemastore.org/github-workflow.json": "file:///Users/marianamaglia/dev/servicenow-sbom-sender/.github/workflow/servicenow-sbom-sender.yaml"
     }
 }
