@@ -1,0 +1,47 @@
+name: servicenow-sbom-sender
+
+on:
+  workflow_call:
+    inputs:
+      imageDigest:
+        required: true
+        type: string
+      imagePath:
+        required: true
+        type: string
+    secrets:
+      imagePullUser:
+        required: false
+      imagePullPassword:
+        required: false
+
+jobs:
+  generate-sbom-and-send-to-servicenow:
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Generate SBOM
+        id: sbom-generator
+        uses: anchore/sbom-action@v0.15.8
+        with:
+          image: ${{ github.event.inputs.imagePath }}
+          artifact-name: 'image.spdx.json'
+          output-file: '/tmp/image.spdx.json'
+      - 
+        uses: anchore/sbom-action/publish-sbom@v0.15.8
+        with:
+          sbom-artifact-match: ".*\\.spdx$"
+      
+      ## Send spdx file to ServiceNow API. Only data contained inside JSON's "packages" array will be sent to ServiceNow API. Also need to provide the image digest from step "build_and_push" to the ServiceNow API.
+      - name: Send SBOM to ServiceNow API
+        run: |
+          echo "Sending SBOM to ServiceNow API"
+          echo "SBOM: $(cat /tmp/image.spdx.json)"
+          echo "Image Digest: ${{ github.event.inputs.imageDigest }}"
+          echo "Image: ${{ github.event.inputs.imagePath }}"
+          echo "Sending SBOM to ServiceNow API"
+          curl -X POST -H "Content-Type: application/json" -d "{\"imageDigest\":\"${{github.event.inputs.imageDigest}}\",\"sbom\":$(jq '.packages | [.[] | {name: .name,versionInfo: .versionInfo, supplier: .supplier}]' /tmp/image.spdx.json)}" ${{secrets.SERVICENOW_API_URL}}
