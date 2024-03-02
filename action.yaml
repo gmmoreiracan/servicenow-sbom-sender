@@ -24,6 +24,7 @@ runs:
         output-file: '/tmp/image.spdx.json'    
     ## Send spdx file to ServiceNow API. Only data contained inside JSON's "packages" array will be sent to ServiceNow API. Also need to provide the image digest from step "build_and_push" to the ServiceNow API.
     - name: Send SBOM to ServiceNow API
+      shell: bash
       run: |
         echo "Sending SBOM to ServiceNow API"
         echo "SBOM: $(cat /tmp/image.spdx.json)"
