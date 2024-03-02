@@ -7,10 +7,6 @@ inputs:
   imagePath:
     required: true
     type: string
-  servicenowApiUrl:
-    required: true
-    type: string
-    default: ${{ vars.SERVICENOW_API_ENDPOINT }}
 secrets:
   imagePullUser:
     required: false
@@ -35,4 +31,4 @@ runs:
         echo "Image Digest: ${{ inputs.imageDigest }}"
         echo "Image: ${{ inputs.imagePath }}"
         echo "Sending SBOM to ServiceNow API"
-        curl -X POST -H "Content-Type: application/json" -d "{\"imageDigest\":\"${{inputs.imageDigest}}\",\"sbom\":$(jq '.packages | [.[] | {name: .name,versionInfo: .versionInfo, supplier: .supplier}]' /tmp/image.spdx.json)}" ${{inputs.servicenowApiUrl}}
+        curl -X POST -H "Content-Type: application/json" -d "{\"imageDigest\":\"${{inputs.imageDigest}}\",\"sbom\":$(jq '.packages | [.[] | {name: .name,versionInfo: .versionInfo, supplier: .supplier}]' /tmp/image.spdx.json)}" $SERVICE_NOW_API_URL
