@@ -19,7 +19,7 @@ runs:
       id: sbom-generator
       uses: anchore/sbom-action@v0.15.8
       with:
-          image: ${{ inputs.imagePath }}
+        image: ${{ inputs.imagePath }}
         artifact-name: 'image.spdx.json'
         output-file: '/tmp/image.spdx.json'    
     ## Send spdx file to ServiceNow API. Only data contained inside JSON's "packages" array will be sent to ServiceNow API. Also need to provide the image digest from step "build_and_push" to the ServiceNow API.
