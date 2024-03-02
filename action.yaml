@@ -28,7 +28,7 @@ jobs:
         id: sbom-generator
         uses: anchore/sbom-action@v0.15.8
         with:
-          image: ${{ github.event.inputs.imagePath }}
+            image: ${{ inputs.imagePath }}
           artifact-name: 'image.spdx.json'
           output-file: '/tmp/image.spdx.json'
       - 
@@ -41,7 +41,7 @@ jobs:
         run: |
           echo "Sending SBOM to ServiceNow API"
           echo "SBOM: $(cat /tmp/image.spdx.json)"
-          echo "Image Digest: ${{ github.event.inputs.imageDigest }}"
-          echo "Image: ${{ github.event.inputs.imagePath }}"
+          echo "Image Digest: ${{ inputs.imageDigest }}"
+          echo "Image: ${{ inputs.imagePath }}"
           echo "Sending SBOM to ServiceNow API"
-          curl -X POST -H "Content-Type: application/json" -d "{\"imageDigest\":\"${{github.event.inputs.imageDigest}}\",\"sbom\":$(jq '.packages | [.[] | {name: .name,versionInfo: .versionInfo, supplier: .supplier}]' /tmp/image.spdx.json)}" ${{secrets.SERVICENOW_API_URL}}
+          curl -X POST -H "Content-Type: application/json" -d "{\"imageDigest\":\"${{inputs.imageDigest}}\",\"sbom\":$(jq '.packages | [.[] | {name: .name,versionInfo: .versionInfo, supplier: .supplier}]' /tmp/image.spdx.json)}" ${{secrets.SERVICENOW_API_URL}}
