@@ -10,7 +10,7 @@ inputs:
   servicenowApiUrl:
     required: true
     type: string
-    default: ${{ variables.SERVICENOW_API_ENDPOINT }}
+    default: ${{ env.SERVICENOW_API_ENDPOINT }}
 secrets:
   imagePullUser:
     required: false
