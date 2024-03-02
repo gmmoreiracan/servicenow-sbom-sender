@@ -31,4 +31,4 @@ runs:
         echo "Image Digest: ${{ inputs.imageDigest }}"
         echo "Image: ${{ inputs.imagePath }}"
         echo "Sending SBOM to ServiceNow API"
-        curl -X POST -H "Content-Type: application/json" -d "{\"imageDigest\":\"${{inputs.imageDigest}}\",\"sbom\":$(jq '.packages | [.[] | {name: .name,versionInfo: .versionInfo, supplier: .supplier}]' /tmp/image.spdx.json)}" $SERVICE_NOW_API_URL
+        curl -X POST -H "Content-Type: application/json" -d "{\"imageDigest\":\"${{inputs.imageDigest}}\",\"sbom\":$(jq '.packages | [.[] | {name: .name,versionInfo: .versionInfo, supplier: .supplier}]' /tmp/image.spdx.json)}" $SERVICENOW_API_ENDPOINT
