@@ -22,13 +22,24 @@ runs:
         image: ${{ inputs.imagePath }}
         artifact-name: 'image.spdx.json'
         output-file: '/tmp/image.spdx.json'    
+    
+    - name: Generate Trivy SBOM
+      id: trivy-sbom
+      shell: bash
+      run: |
+        sudo apt-get install wget apt-transport-https gnupg lsb-release
+        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+        echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+        sudo apt-get update
+        sudo apt-get install trivy
+        TRIVY_INSECURE=true trivy image -q --list-all-pkgs --format json --output /tmp/trivy.sbom.json ${{ inputs.imagePath }}
     ## Send spdx file to ServiceNow API. Only data contained inside JSON's "packages" array will be sent to ServiceNow API. Also need to provide the image digest from step "build_and_push" to the ServiceNow API.
     - name: Send SBOM to ServiceNow API
       shell: bash
       run: |
         echo "Sending SBOM to ServiceNow API"
-        echo "SBOM: $(cat /tmp/image.spdx.json)"
         echo "Image Digest: ${{ inputs.imageDigest }}"
         echo "Image: ${{ inputs.imagePath }}"
         echo "Sending SBOM to ServiceNow API"
         curl -X POST -H "Content-Type: application/json" -d "{\"imageDigest\":\"${{inputs.imageDigest}}\",\"sbom\":$(jq '.packages | [.[] | {name: .name,versionInfo: .versionInfo, supplier: .supplier}]' /tmp/image.spdx.json)}" https://dev185921.service-now.com/api/356213/testing/send-sbom
+        curl -X POST -H "Content-Type: application/json" -d "$(cat /tmp/trivy.sbom.json)" https://dev185921.service-now.com/api/356213/testing/send-trivy-sbom
