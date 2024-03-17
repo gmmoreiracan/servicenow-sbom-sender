@@ -2,7 +2,7 @@ name: servicenow-sbom-sender
 description: 'This workflow builds a container image, generates SBOM and sends it to ServiceNow API'
 inputs:
   imageDigest:
-    required: true
+    required: false
     type: string
   imagePath:
     required: true
@@ -40,7 +40,5 @@ runs:
         echo "Sending SBOM to ServiceNow API"
         echo "Image Digest: ${{ inputs.imageDigest }}"
         echo "Image: ${{ inputs.imagePath }}"
-        echo "Sending SBOM to ServiceNow API"
-        curl -X POST -H "Content-Type: application/json" -d "{\"imageDigest\":\"${{inputs.imageDigest}}\",\"sbom\":$(jq '.packages | [.[] | {name: .name,versionInfo: .versionInfo, supplier: .supplier}]' /tmp/image.spdx.json)}" https://dev185921.service-now.com/api/356213/testing/send-sbom
         echo "Sending Trivy SBOM to ServiceNow API"
         curl -X POST -H "Content-Type: application/json" -d @/tmp/trivy.sbom.json https://dev185921.service-now.com/api/356213/testing/send-trivy-sbom
